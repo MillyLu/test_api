@@ -1,7 +1,7 @@
 import styles from "./Modal.module.css";
 import { useState } from "react";
 
-export function Modal({ setNumber, setModal }) {
+export function Modal({ setNumber, setModal, setChat, chat }) {
   const [value, setValue] = useState("");
   const [error, setError] = useState("");
 
@@ -9,6 +9,7 @@ export function Modal({ setNumber, setModal }) {
     e.preventDefault();
     if (value) {
       setNumber(value);
+      setChat([...chat, value]);
       setModal(false);
     } else {
       setError("Номер не может быть пустым");
