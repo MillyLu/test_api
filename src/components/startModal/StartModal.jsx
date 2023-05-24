@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Login } from "../../apiService";
 import styles from "./StartModal.module.css";
 
 export function StartModal({ setId, setApiToken }) {
@@ -8,24 +9,19 @@ export function StartModal({ setId, setApiToken }) {
   const navigate = useNavigate();
 
   const handleRequest = async () => {
-
     if (idInstance && apiTokenInstance) {
-      const response = await fetch(
-        `https://api.green-api.com/waInstance${idInstance}/getStateInstance/${apiTokenInstance}`,
-        {
-          method: "GET",
+
+      Login(idInstance, apiTokenInstance).then((data) => {
+        if (data.stateInstance === "authorized") {
+          localStorage.setItem("token", "true");
+          setId(idInstance);
+          setApiToken(apiTokenInstance);
+          const path = "/";
+          navigate(path);
+        } else {
+          console.error(data);
         }
-      );
-      const data = await response.json();
-      if (data.stateInstance === "authorized") {
-        localStorage.setItem("token", "true");
-        setId(idInstance);
-        setApiToken(apiTokenInstance);
-        const path = "/";
-        navigate(path);
-      } else {
-        console.error(data);
-      }
+      });
     }
   };
 
