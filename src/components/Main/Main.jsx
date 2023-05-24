@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Main.module.css";
 import { Modal } from "../Modal/Modal";
+import { Exit, SendMessage } from "../../apiService";
 
 export function Main({ id, setId, apiToken, setApiToken }) {
   const [modal, setModal] = useState(false);
@@ -14,9 +15,10 @@ export function Main({ id, setId, apiToken, setApiToken }) {
   const navigate = useNavigate();
 
   const handleExit = () => {
-    fetch(`https://api.green-api.com/waInstance${id}/Logout/${apiToken}`, {
+    /*fetch(`https://api.green-api.com/waInstance${id}/Logout/${apiToken}`, {
       method: "GET",
-    });
+    });*/
+    Exit(id, apiToken);
     localStorage.clear("token");
     setId("");
     setApiToken("");
@@ -24,9 +26,13 @@ export function Main({ id, setId, apiToken, setApiToken }) {
     navigate(path);
   };
 
+  const handleClick = (item) => {
+    setNumber(item);
+  };
+
   const handleSendMessage = () => {
-    fetch(
-      `https://api.green-api.com/waInstance1101823388/sendMessage/54c3b69903624385a9d74182a570383e3e0fcb646e6b4166a8`,
+    /*fetch(
+      `https://api.green-api.com/waInstance${id}/sendMessage/${apiToken}`,
       {
         method: "POST",
         body: JSON.stringify({
@@ -34,38 +40,19 @@ export function Main({ id, setId, apiToken, setApiToken }) {
           message: message,
         }),
       }
-    );
-    setAllMessages([...allMessages, { message: message, type: "outgoing" }]);
-    setMessage("");
-    console.log(allMessages);
-  };
-
-  /*const handleGetMessage = () => {
-    fetch(`https://api.green-api.com/waInstance${id}/ReceiveNotification/${apiToken}
-    `)
-      .then((response) => response.json())
-      .then((data) => {
-        setReceiptId(data.receiptId);
-        console.log(data);
+    );*/
+    SendMessage(id, apiToken, number, message)
+      .then((response) => {
         setAllMessages([
           ...allMessages,
-          {
-            message: data.body.messageData.textMessageData.textMessage,
-            type: "incoming",
-          },
+          { message: message, type: "outgoing" },
         ]);
-        return data;
+        setMessage("");
+        console.log(response);
       })
-      .then((data) => {
-        fetch(
-          `https://api.green-api.com/waInstance${id}/DeleteNotification/${apiToken}/${data.receiptId}`,
-          {
-            method: "DELETE",
-          }
-        );
-        setReceiptId("");
-      });
-  }; */
+
+      .catch((e) => console.log(e));
+  };
 
   useEffect(() => {
     let timerId = setInterval(
@@ -73,6 +60,7 @@ export function Main({ id, setId, apiToken, setApiToken }) {
         fetch(`https://api.green-api.com/waInstance${id}/ReceiveNotification/${apiToken}
     `)
           .then((response) => response.json())
+          /*ReceiveMessage(id, apiToken)*/
           .then((data) => {
             setReceiptId(data.receiptId);
             console.log(data);
@@ -93,6 +81,7 @@ export function Main({ id, setId, apiToken, setApiToken }) {
                   method: "DELETE",
                 }
               );
+              /*DeleteNotification(id, apiToken, receiptId);*/
               console.log(receiptId);
               setReceiptId("");
             }
@@ -110,18 +99,29 @@ export function Main({ id, setId, apiToken, setApiToken }) {
   return (
     <div className={styles.chatPlace}>
       <div className={styles.chats}>
-        <h3 className={styles.title}>Список чатов</h3>
-        {chat.length >= 1 &&
-          chat.map((item) => (
-            <p key={item} className={styles.item}>
-              {item}
-            </p>
-          ))}
+        <div className={styles.chats_title}>
+          <h3 className={styles.title}>Список чатов</h3>
+        </div>
+        <div>
+          {chat.length >= 1 &&
+            chat.map((item) => (
+              <p
+                key={item}
+                onClick={() => handleClick(item)}
+                className={styles.item}
+              >
+                {item}
+              </p>
+            ))}
+        </div>
       </div>
       <div className={styles.menu}>
-        <p>{number}</p>
+        <p className={styles.number}>{number}</p>
         <div>
-          <button className={styles.button} onClick={() => setModal(true)}>
+          <button
+            className={styles.button_create}
+            onClick={() => setModal(true)}
+          >
             Создать чат
           </button>
           {modal && (
