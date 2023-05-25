@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Main.module.css";
 import { Modal } from "../Modal/Modal";
-import { Exit, SendMessage } from "../../apiService";
+import { exit, sendMessage } from "../../apiService";
 
 export function Main({ id, setId, apiToken, setApiToken }) {
   const [modal, setModal] = useState(false);
@@ -18,7 +18,7 @@ export function Main({ id, setId, apiToken, setApiToken }) {
     /*fetch(`https://api.green-api.com/waInstance${id}/Logout/${apiToken}`, {
       method: "GET",
     });*/
-    Exit(id, apiToken);
+    exit(id, apiToken);
     localStorage.clear("token");
     setId("");
     setApiToken("");
@@ -41,7 +41,7 @@ export function Main({ id, setId, apiToken, setApiToken }) {
         }),
       }
     );*/
-    SendMessage(id, apiToken, number, message)
+    sendMessage(id, apiToken, number, message)
       .then((response) => {
         setAllMessages([
           ...allMessages,

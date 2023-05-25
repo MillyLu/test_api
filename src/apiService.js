@@ -1,4 +1,4 @@
-export const Login = async (idInstance, apiTokenInstance) => {
+export const login = async (idInstance, apiTokenInstance) => {
   const response = await fetch(
     `https://api.green-api.com/waInstance${idInstance}/getStateInstance/${apiTokenInstance}`,
     {
@@ -8,7 +8,7 @@ export const Login = async (idInstance, apiTokenInstance) => {
   return await response.json();
 };
 
-export const Exit = async (id, apiToken) => {
+export const exit = async (id, apiToken) => {
   const response = await fetch(
     `https://api.green-api.com/waInstance${id}/Logout/${apiToken}`,
     {
@@ -19,7 +19,7 @@ export const Exit = async (id, apiToken) => {
   return await response.json();
 };
 
-export const SendMessage = async (id, apiToken, number, message) => {
+export const sendMessage = async (id, apiToken, number, message) => {
   const response = await fetch(
     `https://api.green-api.com/waInstance${id}/sendMessage/${apiToken}`,
     {
@@ -35,13 +35,13 @@ export const SendMessage = async (id, apiToken, number, message) => {
 };
 
 
-export const ReceiveMessage = async(id, apiToken) => {
+export const receiveMessage = async(id, apiToken) => {
     const response = await fetch(`https://api.green-api.com/waInstance${id}/ReceiveNotification/${apiToken}
     `);
     return await response.json();
 }
 
-export const DeleteNotification = async(id, apiToken, receiptId) => {
+export const deleteNotification = async(id, apiToken, receiptId) => {
  const response = await fetch(
     `https://api.green-api.com/waInstance${id}/DeleteNotification/${apiToken}/${receiptId}`,
     {
