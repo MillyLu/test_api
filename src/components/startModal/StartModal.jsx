@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Login } from "../../apiService";
+import { login } from "../../apiService";
 import styles from "./StartModal.module.css";
 
 export function StartModal({ setId, setApiToken }) {
@@ -11,7 +11,7 @@ export function StartModal({ setId, setApiToken }) {
   const handleRequest = async () => {
     if (idInstance && apiTokenInstance) {
 
-      Login(idInstance, apiTokenInstance).then((data) => {
+      login(idInstance, apiTokenInstance).then((data) => {
         if (data.stateInstance === "authorized") {
           localStorage.setItem("token", "true");
           setId(idInstance);
