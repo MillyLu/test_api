@@ -5,7 +5,7 @@ export const login = async (idInstance, apiTokenInstance) => {
       method: "GET",
     }
   );
-  return await response.json();
+  return  response.json(); //// await 
 };
 
 export const exit = async (id, apiToken) => {

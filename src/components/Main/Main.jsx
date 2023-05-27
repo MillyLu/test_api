@@ -2,7 +2,12 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Main.module.css";
 import { Modal } from "../Modal/Modal";
-import { exit, sendMessage } from "../../apiService";
+import {
+  exit,
+  sendMessage,
+  receiveMessage,
+  deleteNotification,
+} from "../../apiService";
 
 export function Main({ id, setId, apiToken, setApiToken }) {
   const [modal, setModal] = useState(false);
@@ -11,14 +16,19 @@ export function Main({ id, setId, apiToken, setApiToken }) {
   const [allMessages, setAllMessages] = useState([]);
   const [chat, setChat] = useState([]);
   const [receiptId, setReceiptId] = useState("");
+  const [messageByNumber, setMessageByNumber] = useState([]);
   console.log(id, apiToken);
   const navigate = useNavigate();
 
-  const handleExit = () => {
-    /*fetch(`https://api.green-api.com/waInstance${id}/Logout/${apiToken}`, {
-      method: "GET",
-    });*/
-    exit(id, apiToken);
+  useEffect(() => {
+    if (number) {
+      // eslint-disable-next-line eqeqeq
+      setMessageByNumber(allMessages.filter((item) => item.number == number));
+    }
+  }, [number, allMessages]);
+
+  const handleExit = async () => {
+    await exit(id, apiToken); //// await
     localStorage.clear("token");
     setId("");
     setApiToken("");
@@ -31,21 +41,11 @@ export function Main({ id, setId, apiToken, setApiToken }) {
   };
 
   const handleSendMessage = () => {
-    /*fetch(
-      `https://api.green-api.com/waInstance${id}/sendMessage/${apiToken}`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          chatId: `${number}@c.us`,
-          message: message,
-        }),
-      }
-    );*/
     sendMessage(id, apiToken, number, message)
       .then((response) => {
         setAllMessages([
           ...allMessages,
-          { message: message, type: "outgoing" },
+          { message: message, number: number, type: "outgoing" },
         ]);
         setMessage("");
         console.log(response);
@@ -57,32 +57,27 @@ export function Main({ id, setId, apiToken, setApiToken }) {
   useEffect(() => {
     let timerId = setInterval(
       () =>
-        fetch(`https://api.green-api.com/waInstance${id}/ReceiveNotification/${apiToken}
-    `)
-          .then((response) => response.json())
-          /*ReceiveMessage(id, apiToken)*/
+        receiveMessage(id, apiToken)
           .then((data) => {
             setReceiptId(data.receiptId);
             console.log(data);
-            setAllMessages([
-              ...allMessages,
-              {
-                message: data.body.messageData.textMessageData.textMessage,
-                type: "incoming",
-              },
-            ]);
+            if (data.body.messageData.textMessageData) {
+              setAllMessages([
+                ...allMessages,
+                {
+                  message: data.body.messageData.textMessageData.textMessage,
+                  number: number,
+                  type: "incoming",
+                },
+              ]);
+              console.log(data.receiptId);
+            }
             return data;
           })
           .then((data) => {
             if (data.receiptId) {
-              fetch(
-                `https://api.green-api.com/waInstance${id}/DeleteNotification/${apiToken}/${data.receiptId}`,
-                {
-                  method: "DELETE",
-                }
-              );
-              /*DeleteNotification(id, apiToken, receiptId);*/
-              console.log(receiptId);
+              deleteNotification(id, apiToken, data.receiptId);
+              console.log(data.receiptId);
               setReceiptId("");
             }
           })
@@ -94,7 +89,7 @@ export function Main({ id, setId, apiToken, setApiToken }) {
     );
 
     return () => clearInterval(timerId);
-  }, [id, apiToken, allMessages, receiptId]);
+  }, [id, apiToken, allMessages, receiptId, number]);
 
   return (
     <div className={styles.chatPlace}>
@@ -138,8 +133,8 @@ export function Main({ id, setId, apiToken, setApiToken }) {
         </div>
       </div>
       <div className={styles.messages}>
-        {allMessages.length >= 1 &&
-          allMessages.map((mess) => (
+        {messageByNumber.length >= 1 &&
+          messageByNumber.map((mess) => (
             <p
               className={
                 mess.type === "outgoing" ? styles.outgoing : styles.incoming
